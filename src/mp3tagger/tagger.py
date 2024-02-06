@@ -24,8 +24,6 @@ class Mp3Tagger:
     """Change mp3 tags to what I need"""
 
     backup_dir = None
-    bad_files = 0
-    bad_list = []
     config_file = None
     dest_dir = None
     log_retention_days = 7
@@ -95,6 +93,8 @@ class Mp3Tagger:
             raise FileNotFoundError(self.dest_dir)
         if not os.path.isdir(self.backup_dir):
             raise FileNotFoundError(self.backup_dir)
+        if not os.path.isdir(self.reject_dir):
+            raise FileNotFoundError(self.reject_dir)
 
     def process_file(self, full_file_name):
         """Process current file"""
@@ -134,17 +134,33 @@ class Mp3Tagger:
         """Process all files in the source directory"""
 
         all_files = sorted(glob.glob(f"{self.source_dir}/*/*.mp3"))
+        if len(all_files) == 0:
+            print(f"No files found in {self.source_dir}")
+            return 0
+        bad_files = 0
+        bad_list = []
+        good_files = 0
         for file_name in all_files:
             try:
                 self.process_file(file_name)
+                good_files += 1
             except MyException as inst:
                 msg = inst.msg
                 print(f"    ({msg})")
-                self.bad_files += 1
-                self.bad_list.append(file_name)
+                bad_files += 1
+                bad_list.append(file_name)
+        print(f"Processed {good_files} good files", end=" ")
+        if bad_files > 0:
+            print(f"{bad_files} bad files.")
+            print("Bad files:")
+            for file_name in bad_list:
+                print(f"    {file_name}")
+        print("\nEnd of run ++++++++++")
+        return 0
 
     def run(self):
         """Main entry point"""
+
         self.make_cmd_line_parser()
         self.parse_args()
         self.read_config()
@@ -157,9 +173,12 @@ def main():
     try:
         Mp3Tagger().run()
     except MyException as e:
-        print(e)
+        print(e.msg)
+        sys.exit(1)
+    except FileNotFoundError as e:
+        print(f"File/directory not found: '{e}'")
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    Mp3Tagger().run()
+    main()

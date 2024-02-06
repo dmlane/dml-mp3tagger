@@ -139,6 +139,12 @@ def test_mp3_stderrwith_3_files(capfd, monkeypatch):
         "    (Invalid release date: 240230)\n"
         "Processing file testAlbum/240310-test1.mp3 - OK\n"
         "Ignoring temporary file testAlbum/temp.mp3\n"
+        "Processed 3 good files 1 bad files.\n"
+        "Bad files:\n"
+        f"    {DOWNLOAD_DIR}/240230-anything.mp3\n"
+        "\n"
+        "End of run ++++++++++\n"
+        # "\n"
     )
     cc = Mp3Tagger()
     cc.run()
