@@ -3,12 +3,15 @@
 import os
 import shutil
 from configparser import BasicInterpolation, ConfigParser
+from pathlib import Path
 
 import appdirs
 
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+
 # Config file provided as part of the package
 DEFAULT_CONFIG_FILE = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), os.pardir, "data", "mp3tagger.ini"
+    os.path.dirname(os.path.realpath(__file__)), "data", "mp3tagger.ini"
 )
 
 # Local config which will override the default config file
@@ -36,17 +39,17 @@ class EnvInterpolation(BasicInterpolation):  # pylint: disable=too-few-public-me
 def read_config(section, ini_path=None):
     """Read config file - returning a dictionary of config values from section"""
     if ini_path is None:
+        # config not in correct location so create it from the default ini file
         configs_to_read = [DEFAULT_CONFIG_FILE, CONFIG]
-    else:
-        configs_to_read = [ini_path]
-    # If config not in correct location, create it from the default ini file
-    ini_path = ini_path or CONFIG
-    if not os.path.exists(ini_path):
-        if ini_path is None:
+        if not os.path.exists(CONFIG):
+            if not os.path.exists(DEFAULT_CONFIG_FILE):
+                raise FileNotFoundError(DEFAULT_CONFIG_FILE)
             os.makedirs(CONFIG_DIR, exist_ok=True)
             shutil.copy(DEFAULT_CONFIG_FILE, CONFIG)
-        else:
+    else:
+        if not os.path.exists(ini_path):
             raise FileNotFoundError(ini_path)
+        configs_to_read = [ini_path]
     config = ConfigParser(
         interpolation=EnvInterpolation(),
         defaults=VARS,

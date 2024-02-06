@@ -132,15 +132,6 @@ def test_mp3_stderrwith_3_files(capfd, monkeypatch):
         src=RESOURCE_DIR + "/240131-not_a_mp3.mp3", dst=DOWNLOAD_DIR + "/240230-anything.mp3"
     )
     monkeypatch.setattr("sys.argv", ["tagger.py", "-r", "-c", RESOURCE_DIR + "/mp3tagger.ini"])
-    # expected_files = sorted(
-    #     [
-    #         f"{BACKUP_DIR}/testAlbum/240110-test1.mp3",
-    #         f"{BACKUP_DIR}/testAlbum/240310-test1.mp3",
-    #         f"{MP3_DIR}/testAlbum/240110-test1.mp3",
-    #         f"{MP3_DIR}/testAlbum/240310-test1.mp3",
-    #         f"{REJECT_DIR}/testAlbum/240230-anything.mp3",
-    #     ]
-    # )
     expected_stdout = (
         "Processing file testAlbum/240110-test1.mp3 - OK\n"
         "Processing file testAlbum/240230-anything.mp3\n"
