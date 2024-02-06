@@ -16,6 +16,10 @@ packages = [
    { include = "mp3tagger", from = "src" },
 ]
 
+[tool.homebrew]
+# Set to false to skip building HomeBrew package
+build = false
+
 [tool.poetry.dependencies]
 python = ">=3.11,<4"
 appdirs = "^1.4.4"
