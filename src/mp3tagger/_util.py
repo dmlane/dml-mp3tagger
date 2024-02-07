@@ -202,7 +202,7 @@ def ffmpeg_recover(md: MyData):
     result = None
     try:
         try:
-            print(f"\n **** Trying to recover {md.temp_fn} using ffmpeg ****")
+            print(f"\n **** Trying to recover\n{md.input_file}\nusing ffmpeg ****")
             result = subprocess.run(
                 ["ffmpeg", "-i", md.temp_fn, temp_file], check=False, capture_output=True
             )
