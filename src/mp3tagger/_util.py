@@ -204,7 +204,7 @@ def ffmpeg_recover(md: MyData):
         try:
             print(f"\n **** Trying to recover\n{md.input_file}\nusing ffmpeg ****")
             result = subprocess.run(
-                ["ffmpeg", "-i", md.temp_fn, temp_file], check=False, capture_output=True
+                ["ffmpeg", "-y", "-i", md.temp_fn, temp_file], check=False, capture_output=True
             )
         except FileNotFoundError as e:
             if e.errno == 2 and e.filename == "ffmpeg":
