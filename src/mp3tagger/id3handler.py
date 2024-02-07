@@ -7,7 +7,7 @@ import mutagen
 from mutagen.id3 import ID3
 from mutagen.mp3 import MP3
 
-from mp3tagger._util import MyData, MyException, copy_to_temp
+from mp3tagger._util import MyData, MyException, copy_to_temp, ffmpeg_recover
 
 # noinspection SpellCheckingInspection
 ORIGINAL_ARTIST = ("TOPE", mutagen.id3.TOPE)
@@ -79,8 +79,10 @@ class ID3Handler:
         try:
             self.audio = MP3(md.temp_fn)
         except mutagen.mp3.HeaderNotFoundError as e:
-            raise MyException(msg=f"{md.input_file} is not a valid MP3", code=2) from e
-
+            result = ffmpeg_recover(md)
+            if result != 0:
+                raise MyException(msg=f"{md.input_file} is not a valid MP3", code=2) from e
+            self.dirty = True
         try:
             self.audio = ID3(md.temp_fn)
         except mutagen.id3.ID3NoHeaderError:
@@ -88,7 +90,7 @@ class ID3Handler:
             self.dirty = True
         self.dirty = self.dirty or (self.audio.version < REQUIRED_VERSION)
         if TITLE[0] in self.audio.keys():
-            title = derive_title(self.audio[TITLE[0]])
+            title = derive_title(self.audio[TITLE[0]].text[0])
         else:
             title = md.basename
         title = md.release_date + "-" + title

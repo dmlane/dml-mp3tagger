@@ -23,17 +23,18 @@ def result_string(album, file_name):
         pattern = re.search(r"([0-9]{2})([0-9]{2})([0-9]{2})-(.*)\.mp3", file_name)
     (year, month, day, basename) = pattern.groups()
     short_fn = year + month + day + "-" + basename + ".mp3"
+    pod_fn = f"pod_20{year}-{month}-{day}-{basename}.mp3"
     date = year + month + day
     res = {
         "album_dir": f"{DEST_DIR}/{album}",
         "album_name": album,
         "backup_dir": f"{BACKUP_DIR}/{album}",
-        "backup_file": f"{BACKUP_DIR}/{album}/{short_fn}",
+        "backup_file": f"{BACKUP_DIR}/{album}/{pod_fn}",
         "basename": f"{short_fn[7:-4]}",
         "input_file": f"{INPUT_DIR}/{album}/{file_name}",
         "output_file": f"{DEST_DIR}/{album}/{short_fn}",
         "reject_dir": f"{REJECT_DIR}/{album}",
-        "reject_file": f"{REJECT_DIR}/{album}/{short_fn}",
+        "reject_file": f"{REJECT_DIR}/{album}/{pod_fn}",
         "release_date": f"{date}",
         "release_year": f"20{year}",
         "temp_fn": f"{DEST_DIR}/temp.mp3",
@@ -50,7 +51,7 @@ def test_mydata_style1():
     expected_results = result_string(album_name, file_name + ".mp3")
     my_data = MyData(full_filename, DEST_DIR, BACKUP_DIR, REJECT_DIR)
     actual_results = my_data.all
-    assert expected_results == actual_results
+    assert actual_results == expected_results
 
 
 def test_mydata_style2():

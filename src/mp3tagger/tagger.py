@@ -3,6 +3,7 @@
 import argparse
 import glob
 import os.path
+import shutil
 import sys
 from importlib.metadata import version
 
@@ -170,6 +171,11 @@ class Mp3Tagger:
 
 def main():
     """Main entry point"""
+    if shutil.which("ffmpeg") is None:
+        print("**************************")
+        print("**** ffmpeg not found ****")
+        print("**************************")
+        sys.exit(1)
     try:
         Mp3Tagger().run()
     except MyException as e:

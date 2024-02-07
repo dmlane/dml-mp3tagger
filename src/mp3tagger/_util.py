@@ -4,6 +4,7 @@ import argparse
 import os
 import re
 import shutil
+import subprocess
 import textwrap
 
 
@@ -73,7 +74,8 @@ class MyData:
     @property
     def reject_file(self):
         """Return the reject file"""
-        return os.path.join(self.reject_dir, self._release_date + "-" + self._basename + ".mp3")
+        fn = "pod_" + self.full_release_date + "-" + self._basename + ".mp3"
+        return os.path.join(self.reject_dir, fn)
 
     @property
     def output_file(self):
@@ -93,7 +95,9 @@ class MyData:
     @property
     def backup_file(self):
         """Return the backup file"""
-        return os.path.join(self.backup_dir, self._release_date + "-" + self._basename + ".mp3")
+        fn = "pod_" + self.full_release_date + "-" + self._basename + ".mp3"
+
+        return os.path.join(self.backup_dir, fn)
 
     @property
     def dest_dir(self):
@@ -109,6 +113,18 @@ class MyData:
     def release_date(self):
         """Return the release date"""
         return self._release_date
+
+    @property
+    def full_release_date(self):
+        """Return the full release date"""
+        return (
+            "20"
+            + self._release_date[:2]
+            + "-"
+            + self._release_date[2:4]
+            + "-"
+            + self._release_date[4:]
+        )
 
     @property
     def release_year(self):
@@ -178,3 +194,29 @@ def remove_temp_file(md: MyData):
     """Remove the temporary file"""
     os.remove(md.temp_fn)
     return 0
+
+
+def ffmpeg_recover(md: MyData):
+    """Try to make mp3 readable using ffmpeg"""
+    temp_file = "/tmp/mp3tagger_ffmpeg_recover.mp3"
+    result = None
+    try:
+        try:
+            print(f"\n **** Trying to recover {md.temp_fn} using ffmpeg ****")
+            result = subprocess.run(
+                ["ffmpeg", "-i", md.temp_fn, temp_file], check=False, capture_output=True
+            )
+        except FileNotFoundError as e:
+            if e.errno == 2 and e.filename == "ffmpeg":
+                raise MyException(code=1, msg="ffmpeg not found") from None
+        if result.returncode == 0:
+            shutil.move(temp_file, md.temp_fn)
+            return 0
+    except MyException as e:
+        print(f"\n **** {e.msg} ****\n")
+    # except subprocess.CalledProcessError as e:
+    #     print(e)
+
+    if os.path.isfile(temp_file):
+        os.remove(temp_file)
+    return 1

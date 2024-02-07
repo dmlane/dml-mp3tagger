@@ -55,7 +55,7 @@ def test_good_file_removing_original(monkeypatch):
     monkeypatch.setattr("sys.argv", ["tagger.py", "-r", "-c", RESOURCE_DIR + "/mp3tagger.ini"])
     expected_files = sorted(
         [
-            f"{BACKUP_DIR}/testAlbum/240229-test1.mp3",
+            f"{BACKUP_DIR}/testAlbum/pod_2024-02-29-test1.mp3",
             f"{MP3_DIR}/testAlbum/240229-test1.mp3",
         ]
     )
@@ -74,7 +74,7 @@ def test_non_mp3(monkeypatch):
     monkeypatch.setattr("sys.argv", ["tagger.py", "-r", "-c", RESOURCE_DIR + "/mp3tagger.ini"])
     expected_files = sorted(
         [
-            f"{REJECT_DIR}/testAlbum/240131-not_a_mp3.mp3",
+            f"{REJECT_DIR}/testAlbum/pod_2024-01-31-not_a_mp3.mp3",
         ]
     )
     cc = Mp3Tagger()
@@ -91,7 +91,7 @@ def test_mp3_with_invalid_date(monkeypatch):
     monkeypatch.setattr("sys.argv", ["tagger.py", "-r", "-c", RESOURCE_DIR + "/mp3tagger.ini"])
     expected_files = sorted(
         [
-            f"{REJECT_DIR}/testAlbum/240230-anything.mp3",
+            f"{REJECT_DIR}/testAlbum/pod_2024-02-30-anything.mp3",
         ]
     )
     cc = Mp3Tagger()
@@ -110,11 +110,11 @@ def test_mp3_with_3_files(monkeypatch):
     monkeypatch.setattr("sys.argv", ["tagger.py", "-r", "-c", RESOURCE_DIR + "/mp3tagger.ini"])
     expected_files = sorted(
         [
-            f"{BACKUP_DIR}/testAlbum/240110-test1.mp3",
-            f"{BACKUP_DIR}/testAlbum/240310-test1.mp3",
+            f"{BACKUP_DIR}/testAlbum/pod_2024-01-10-test1.mp3",
+            f"{BACKUP_DIR}/testAlbum/pod_2024-03-10-test1.mp3",
             f"{MP3_DIR}/testAlbum/240110-test1.mp3",
             f"{MP3_DIR}/testAlbum/240310-test1.mp3",
-            f"{REJECT_DIR}/testAlbum/240230-anything.mp3",
+            f"{REJECT_DIR}/testAlbum/pod_2024-02-30-anything.mp3",
         ]
     )
     cc = Mp3Tagger()
@@ -151,3 +151,42 @@ def test_mp3_stderrwith_3_files(capfd, monkeypatch):
     out, err = capfd.readouterr()
     # actual_files = get_files()
     assert out == expected_stdout and err == ""
+
+
+def test_recoverable_file(monkeypatch):
+    """Test processing of a file which mutagen doesn't like, but
+    ffmpeg can read"""
+    shutil.copy2(
+        src=RESOURCE_DIR + "/pod_2022-08-10-recoverable.mp3",
+        dst=DOWNLOAD_DIR + "/pod_2022-08-10-recoverable.mp3",
+    )
+    monkeypatch.setattr("sys.argv", ["tagger.py", "-r", "-c", RESOURCE_DIR + "/mp3tagger.ini"])
+    expected_files = sorted(
+        [
+            f"{BACKUP_DIR}/testAlbum/pod_2022-08-10-recoverable.mp3",
+            f"{MP3_DIR}/testAlbum/220810-recoverable.mp3",
+        ]
+    )
+    cc = Mp3Tagger()
+    cc.run()
+    actual_files = get_files()
+    assert actual_files == expected_files
+
+
+def test_unrecoverable_file(monkeypatch):
+    """Test processing of a file which mutagen doesn't like, but
+    ffmpeg can read"""
+    shutil.copy2(
+        src=RESOURCE_DIR + "/pod_2023-12-29-unrecoverable.mp3",
+        dst=DOWNLOAD_DIR + "/pod_2023-12-29-unrecoverable.mp3",
+    )
+    monkeypatch.setattr("sys.argv", ["tagger.py", "-r", "-c", RESOURCE_DIR + "/mp3tagger.ini"])
+    expected_files = sorted(
+        [
+            f"{REJECT_DIR}/testAlbum/pod_2023-12-29-unrecoverable.mp3",
+        ]
+    )
+    cc = Mp3Tagger()
+    cc.run()
+    actual_files = get_files()
+    assert actual_files == expected_files
