@@ -22,9 +22,15 @@ Re-tag mp3 to match what we need in Apple Music
 
 options:
   -h, --help            show this help message and exit
+  
   -V, --version         Print the version number
+  
   -v, --verbose         Verbose output
+  
   -r, --remove-source_file
-                        Remove the source file after processing
+                        
+			Remove the source file after processing
+   
   -c CONFIG_FILE, --config_file CONFIG_FILE
+  
                         Configuration file to use
