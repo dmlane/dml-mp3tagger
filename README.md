@@ -2,6 +2,7 @@
 
 Processes the podcasts downloaded by greg. 
 	- Files are rejected if they are not valid mp3 files.
+ 
 	- If files are rejected, run them through ffmpeg to see if they are fixed.
 	- Modify metdadata id3 tags using mutagen
 		- Strip out characters which cause problems in the title
