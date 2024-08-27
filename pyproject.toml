@@ -21,7 +21,7 @@ packages = [
 build = true
 
 [tool.poetry.dependencies]
-python = ">=3.11,<4"
+python = ">=3.12,<4"
 appdirs = "^1.4.4"
 mutagen = "^1.47.0"
 python-dateutil = "^2.8.2"
